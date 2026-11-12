@@ -1,0 +1,85 @@
+{
+  "window": "2026-10-26 to 2026-11-10",
+  "overall": {
+    "zomato": {
+      "reviews": 9997,
+      "avg_stars": 4.0
+    },
+    "swiggy": {
+      "reviews": 5659,
+      "avg_stars": 3.61
+    }
+  },
+  "aspects": [
+    {
+      "aspect": "overall",
+      "zomato_n": 2084,
+      "zomato_neg_pct": 53.4,
+      "swiggy_n": 1719,
+      "swiggy_neg_pct": 60.8,
+      "verdict": "swiggy more negative",
+      "zomato_stars": null,
+      "swiggy_stars": null
+    },
+    {
+      "aspect": "delivery",
+      "zomato_n": 695,
+      "zomato_neg_pct": 63.2,
+      "swiggy_n": 642,
+      "swiggy_neg_pct": 70.6,
+      "verdict": "swiggy more negative",
+      "zomato_stars": 2.03,
+      "swiggy_stars": 1.71
+    },
+    {
+      "aspect": "food_quality",
+      "zomato_n": 587,
+      "zomato_neg_pct": 62.5,
+      "swiggy_n": 450,
+      "swiggy_neg_pct": 70.2,
+      "verdict": "no clear difference",
+      "zomato_stars": 2.22,
+      "swiggy_stars": 1.87
+    },
+    {
+      "aspect": "support",
+      "zomato_n": 575,
+      "zomato_neg_pct": 76.3,
+      "swiggy_n": 517,
+      "swiggy_neg_pct": 82.4,
+      "verdict": "no clear difference",
+      "zomato_stars": 1.65,
+      "swiggy_stars": 1.45
+    },
+    {
+      "aspect": "refund_payment",
+      "zomato_n": 359,
+      "zomato_neg_pct": 86.4,
+      "swiggy_n": 383,
+      "swiggy_neg_pct": 84.9,
+      "verdict": "no clear difference",
+      "zomato_stars": 1.35,
+      "swiggy_stars": 1.24
+    },
+    {
+      "aspect": "pricing_offers",
+      "zomato_n": 331,
+      "zomato_neg_pct": 55.6,
+      "swiggy_n": 311,
+      "swiggy_neg_pct": 63.7,
+      "verdict": "no clear difference",
+      "zomato_stars": 2.23,
+      "swiggy_stars": 1.97
+    },
+    {
+      "aspect": "app_bugs",
+      "zomato_n": 14,
+      "zomato_neg_pct": 71.4,
+      "swiggy_n": 34,
+      "swiggy_neg_pct": 76.5,
+      "verdict": "no clear difference",
+      "zomato_stars": 2.12,
+      "swiggy_stars": 1.78
+    }
+  ]
+}
