@@ -1,4 +1,10 @@
+# Python
 venv/
 __pycache__/
-data/*.csv
+*.pyc
 .env
+.env.*
+data/*.csv
+.DS_Store
+Thumbs.db
+*.log
