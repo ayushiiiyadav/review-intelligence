@@ -386,16 +386,26 @@ export default function Home() {
   return (
     <main className="ri">
       <div className="ri-wrap">
-        <header>
-          <h1>Review Intelligence</h1>
+               <header>
+          <h1 className="hero-title" aria-label="Review Intelligence">
+            <span className="reveal purple" aria-hidden="true">
+              <span style={{ "--d": "0s" }}>Review</span>
+            </span>
+            <span className="reveal gold" aria-hidden="true">
+              <span style={{ "--d": "0.12s" }}>Intelligence</span>
+            </span>
+          </h1>
           {summary.map((s, i) => (
-            <p key={i} className="ri-lede">
-              {s}
+            <p key={i} className="ri-lede reveal">
+              <span style={{ "--d": `${0.4 + i * 0.1}s` }}>{s}</span>
             </p>
           ))}
-          <p className="ri-window">Public Play Store reviews, {data.window}.</p>
+          <p className="ri-window reveal">
+            <span style={{ "--d": `${0.4 + summary.length * 0.1}s` }}>
+              Public Play Store reviews, {data.window}.
+            </span>
+          </p>
         </header>
-
         <div className="printer" aria-hidden="true" />
         <div className="receipts">
           {apps.map((a, i) => (
