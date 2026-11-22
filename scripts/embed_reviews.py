@@ -12,12 +12,12 @@ client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 MODEL = "gemini-embedding-001"
 DIM = 768
-BATCH = 20   # texts per request
-PAUSE = 13   # seconds between requests, keeps us near 90 texts per minute
+BATCH = 20   
+PAUSE = 13   
 INDEX = "data/review_index.csv"
 VECS = "data/review_vectors.npy"
+MAX_PER_RUN = 900  
 
-# Build the review list once, longest (most informative) reviews first
 if os.path.exists(INDEX):
     reviews = pd.read_csv(INDEX)
 else:
@@ -65,8 +65,9 @@ def embed(batch):
 
 
 i = len(vectors)
+start = i
 try:
-    while i < len(texts):
+    while i < len(texts) and i - start < MAX_PER_RUN:
         batch = texts[i : i + BATCH]
         vecs = embed(batch)
         if vecs is None:
