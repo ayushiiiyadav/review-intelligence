@@ -324,6 +324,133 @@ function Pipeline({ data, apps, rows }) {
   );
 }
 
+const EXAMPLES = [
+  "Why are people angry about refunds?",
+  "What do Swiggy users say about delivery partners?",
+  "What do Zomato users say about customer support?",
+];
+
+function renderAnswer(text, setActive) {
+  return text.replace(/\*\*/g, "").split(/(\[\d+\])/g).map((part, i) => {
+    const m = part.match(/^\[(\d+)\]$/);
+    if (!m) return part;
+    const n = Number(m[1]);
+    return (
+      <button
+        key={i}
+        type="button"
+        className="cite"
+        onMouseEnter={() => setActive(n)}
+        onMouseLeave={() => setActive(null)}
+        onFocus={() => setActive(n)}
+        onBlur={() => setActive(null)}
+      >
+        {n}
+      </button>
+    );
+  });
+}
+
+function AskReviews() {
+  const [q, setQ] = useState("");
+  const [state, setState] = useState("idle");
+  const [result, setResult] = useState(null);
+  const [msg, setMsg] = useState("");
+  const [active, setActive] = useState(null);
+
+  async function ask(text) {
+    const question = (text ?? q).trim();
+    if (question.length < 3) return;
+    setQ(question);
+    setState("loading");
+    setActive(null);
+    try {
+      const r = await fetch(`${API}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setMsg(
+          typeof data.detail === "string"
+            ? data.detail
+            : "Something went wrong. Try again in a minute."
+        );
+        setState("error");
+        return;
+      }
+      setResult(data);
+      setState("done");
+    } catch {
+      setMsg("Couldn't reach the server. It may be waking up, so try again in a minute.");
+      setState("error");
+    }
+  }
+
+  return (
+    <section className="ri-section" aria-labelledby="ask-h">
+      <h2 id="ask-h">Ask the reviews</h2>
+      <p className="ri-sub">
+        Type a question. The page finds the most relevant written reviews, and an AI model answers
+        using only those. The numbers in the answer point to the reviews it used. It covers the
+        reviews collected so far, so treat it as a sample, not a verdict.
+      </p>
+      <form
+        className="ask-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          ask();
+        }}
+      >
+        <label htmlFor="ask-q" className="sr-only">
+          Your question
+        </label>
+        <input
+          id="ask-q"
+          value={q}
+          maxLength={200}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="e.g. Why are people angry about refunds?"
+        />
+        <button className="ri-btn" type="submit" disabled={state === "loading"}>
+          Ask
+        </button>
+      </form>
+      <div className="ask-chips">
+        {EXAMPLES.map((ex) => (
+          <button key={ex} type="button" className="ask-chip" onClick={() => ask(ex)}>
+            {ex}
+          </button>
+        ))}
+      </div>
+
+      <div className="ask-out" aria-live="polite">
+        {state === "loading" && <p className="ask-loading">Reading the reviews...</p>}
+        {state === "error" && <p className="ask-error">{msg}</p>}
+        {state === "done" && result && (
+          <>
+            <p className="ask-answer">{renderAnswer(result.answer, setActive)}</p>
+            <ol className="slips">
+              {result.evidence.map((e) => (
+                <li key={e.n} className={`slip ${active === e.n ? "is-active" : ""}`}>
+                  <span className="slip-n">{e.n}</span>
+                  <div>
+                    <p className="slip-meta">
+                      {cap(e.app)} · {e.stars} {e.stars === 1 ? "star" : "stars"}
+                    </p>
+                    <p className="slip-text">{e.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -426,7 +553,7 @@ export default function Home() {
           Star averages use every review in the window. Topic percentages use only written reviews of
           five or more words, which skew negative because people write more when something went wrong.
         </p>
-
+        <AskReviews/>
         <GapChart apps={apps} rows={rows} hot={hot} setHot={setHot} />
         <Pipeline data={data} apps={apps} rows={rows} />
 
