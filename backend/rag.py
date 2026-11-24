@@ -1,8 +1,8 @@
-import csv
+import math
 import os
 from pathlib import Path
 
-import numpy as np
+import psycopg
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -13,39 +13,37 @@ load_dotenv(ROOT / ".env")
 EMBED_MODEL = "gemini-embedding-001"
 K = 8
 
-_state = {}
+_client = None
 
 
-def _load():
-    if not _state:
-        _state["client"] = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-        _state["vectors"] = np.load(ROOT / "data" / "review_vectors.npy")
-        with open(ROOT / "data" / "review_index.csv", encoding="utf-8", newline="") as f:
-            rows = list(csv.DictReader(f))
-        _state["rows"] = rows[: len(_state["vectors"])]
-    return _state["client"], _state["vectors"], _state["rows"]
+def _gemini():
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    return _client
 
 
 def ask(question):
-    client, vectors, rows = _load()
+    client = _gemini()
 
     res = client.models.embed_content(
         model=EMBED_MODEL,
         contents=question,
         config=types.EmbedContentConfig(output_dimensionality=768, task_type="RETRIEVAL_QUERY"),
     )
-    q = np.array(res.embeddings[0].values, dtype="float32")
-    q /= np.linalg.norm(q)
-    top = np.argsort(-(vectors @ q))[:K]
+    vec = res.embeddings[0].values
+    norm = math.sqrt(sum(x * x for x in vec))
+    literal = "[" + ",".join(f"{x / norm:.6f}" for x in vec) + "]"
+
+    with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+        rows = conn.execute(
+            "SELECT app, score, content FROM reviews ORDER BY embedding <=> %s::vector LIMIT %s",
+            (literal, K),
+        ).fetchall()
 
     evidence = [
-        {
-            "n": n + 1,
-            "app": rows[i]["app"],
-            "stars": int(rows[i]["score"]),
-            "text": rows[i]["content"][:300],
-        }
-        for n, i in enumerate(top)
+        {"n": n + 1, "app": app, "stars": int(score), "text": content[:300]}
+        for n, (app, score, content) in enumerate(rows)
     ]
     numbered = "\n".join(
         f"[{e['n']}] ({e['app']}, {e['stars']} stars) {e['text']}" for e in evidence
