@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from pathlib import Path
 
@@ -7,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend import rag
+
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(title="Review Intelligence API")
 app.add_middleware(
@@ -43,5 +46,12 @@ def ask(body: AskIn, request: Request):
     _hits[ip] = recent
     try:
         return rag.ask(body.question.strip())
-    except Exception:
+    except Exception as err:
+        logger.exception("ask failed")
+        text = str(err)
+        if "429" in text or "RESOURCE_EXHAUSTED" in text:
+            raise HTTPException(
+                status_code=429,
+                detail="The AI service's free limit was reached. Try again in a minute.",
+            )
         raise HTTPException(status_code=503, detail="The answer service is busy. Try again in a minute.")

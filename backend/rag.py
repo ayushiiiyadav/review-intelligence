@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+import time
+from google.genai import errors
+
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
@@ -22,6 +25,20 @@ def _gemini():
         _client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     return _client
 
+def _generate(prompt):
+    models = [os.environ["GEMINI_MODEL"]]
+    fallback = os.environ.get("GEMINI_FALLBACK_MODEL")
+    if fallback:
+        models.append(fallback)
+    last = None
+    for model in models:
+        for _ in range(2):
+            try:
+                return _gemini().models.generate_content(model=model, contents=prompt)
+            except errors.ServerError as err:
+                last = err
+                time.sleep(1.5)
+    raise last
 
 def ask(question):
     client = _gemini()
@@ -63,5 +80,5 @@ Rules:
 
 Question: {question}"""
 
-    answer = client.models.generate_content(model=os.environ["GEMINI_MODEL"], contents=prompt)
+    answer =_generate(prompt)
     return {"answer": answer.text, "evidence": evidence}
