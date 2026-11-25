@@ -2,7 +2,7 @@
 
 Ask questions about what people say in public app reviews, and see how two apps compare. It analyses written Play Store reviews of two food delivery apps with a multilingual sentiment model, checks whether the gaps between them are real, and lets you ask free-form questions that are answered only from retrieved reviews, with the evidence shown.
 
-**Live demo:** https://YOUR-VERCEL-LINK-HERE
+**Live demo:** https://review-intelligence-phi.vercel.app
 **API:** https://review-intelligence-api-u7qa.onrender.com/docs
 
 > The API runs on a free host that sleeps when idle, so the first request can take up to a minute.
