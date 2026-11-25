@@ -7,7 +7,7 @@ Ask questions about what people say in public app reviews, and see how two apps 
 
 > The API runs on a free host that sleeps when idle, so the first request can take up to a minute.
 
-![Comparison page](docs/home.png)
+![Review Intelligence](docs/hero.png)
 ![Ask the reviews](docs/ask.png)
 
 ## What it does
