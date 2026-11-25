@@ -331,25 +331,31 @@ const EXAMPLES = [
 ];
 
 function renderAnswer(text, setActive) {
-  return text.replace(/\*\*/g, "").split(/(\[\d+\])/g).map((part, i) => {
-    const m = part.match(/^\[(\d+)\]$/);
-    if (!m) return part;
-    const n = Number(m[1]);
-    return (
-      <button
-        key={i}
-        type="button"
-        className="cite"
-        onMouseEnter={() => setActive(n)}
-        onMouseLeave={() => setActive(null)}
-        onFocus={() => setActive(n)}
-        onBlur={() => setActive(null)}
-      >
-        {n}
-      </button>
-    );
-  });
+  return text
+    .replace(/\*\*/g, "")
+    .split(/(\[\d+(?:\s*,\s*\d+)*\])/g)
+    .map((part, i) => {
+      const m = part.match(/^\[(\d+(?:\s*,\s*\d+)*)\]$/);
+      if (!m) return part;
+      return m[1].split(",").map((s, j) => {
+        const n = Number(s.trim());
+        return (
+          <button
+            key={`${i}-${j}`}
+            type="button"
+            className="cite"
+            onMouseEnter={() => setActive(n)}
+            onMouseLeave={() => setActive(null)}
+            onFocus={() => setActive(n)}
+            onBlur={() => setActive(null)}
+          >
+            {n}
+          </button>
+        );
+      });
+    });
 }
+
 
 function AskReviews() {
   const [q, setQ] = useState("");
